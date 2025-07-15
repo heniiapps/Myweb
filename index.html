@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Quiz App</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .quiz-container { max-width: 600px; margin: auto; }
+        .question { font-weight: bold; }
+        .options { margin-top: 10px; }
+        .option { margin-bottom: 5px; }
+        #nextBtn { margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <div id="quiz">
+            <div class="question" id="question"></div>
+            <div class="options" id="options"></div>
+            <button id="nextBtn">Next</button>
+            <p id="result"></p>
+        </div>
+    </div>
+
+    <script>
+        let currentQuestion = 0;
+        let score = 0;
+        let quizData = [];
+
+        async function loadQuizData() {
+            const res = await fetch("questions.json");
+            quizData = await res.json();
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const q = quizData[currentQuestion];
+            document.getElementById("question").innerText = q.ques;
+            const optionsDiv = document.getElementById("options");
+            optionsDiv.innerHTML = "";
+            ['a', 'b', 'c', 'd'].forEach(key => {
+                if (q[key]) {
+                    const btn = document.createElement("button");
+                    btn.innerText = q[key];
+                    btn.className = "option";
+                    btn.onclick = () => handleAnswer(key);
+                    optionsDiv.appendChild(btn);
+                }
+            });
+        }
+
+        function handleAnswer(selected) {
+            if (selected === quizData[currentQuestion].ans) {
+                score++;
+            }
+            currentQuestion++;
+            if (currentQuestion < quizData.length) {
+                displayQuestion();
+            } else {
+                document.getElementById("quiz").innerHTML = "<h2>You scored " + score + " out of " + quizData.length + "</h2>";
+            }
+        }
+
+        loadQuizData();
+    </script>
+</body>
+</html>
